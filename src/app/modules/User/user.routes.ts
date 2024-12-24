@@ -8,13 +8,13 @@ const router = express.Router();
 
 router.get(
     "/me",
-    auth(Role.ADMIN, Role.USER),
+    auth(Role.ADMIN),
     userController.getMyProfile
 );
 
 router.put(
     "/me",
-    auth(Role.ADMIN, Role.USER),
+    auth(Role.ADMIN),
     upload.fields([{ name: "avatar", maxCount: 1 }]),
     (req: Request, res: Response, next: NextFunction) => {
         if (req.body.data) {

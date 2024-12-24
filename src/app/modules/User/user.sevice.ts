@@ -61,13 +61,10 @@ const DeleteUser = async (id: string): Promise<User | null> => {
         }
     });
 
-    const result = await prisma.user.update({
+    const result = await prisma.user.delete({
         where: {
             id
         },
-        data: {
-            isDeleted: false
-        }
     });
 
     return result;

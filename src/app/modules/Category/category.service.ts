@@ -95,7 +95,8 @@ const update = async (
             id,
         },
     });
-
+    console.log(data);
+    
     const result = await prisma.category.update({
         where: {
             id,

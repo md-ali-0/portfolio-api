@@ -32,20 +32,21 @@ model User {
 }
 
 model Post {
-  id         String   @id @default(cuid())
-  title      String
-  slug       String   @unique
-  thumbnail  String
-  authorId   String
-  author     User     @relation(fields: [authorId], references: [id])
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-  content    String
-  metaTitle  String?
-  metaDesc   String?
-  metaKey    String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  thumbnail        String
+  shortDescription String
+  authorId         String
+  author           User     @relation(fields: [authorId], references: [id])
+  categoryId       String
+  category         Category @relation(fields: [categoryId], references: [id])
+  content          String
+  metaTitle        String?
+  metaDesc         String?
+  metaKey          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Project {

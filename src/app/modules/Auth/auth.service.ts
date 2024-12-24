@@ -1,4 +1,4 @@
-import { Role, UserStatus } from "@prisma/client";
+import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
 import { Secret } from "jsonwebtoken";
@@ -15,13 +15,7 @@ const generateTokens = (user: { id: string; role: Role }) => {
         config.jwt.expires_in as string
     );
 
-    const refreshToken = jwtHelpers.generateToken(
-        { user: user.id, role: user.role },
-        config.jwt.refresh_token_secret as Secret,
-        config.jwt.refresh_token_expires_in as string
-    );
-
-    return { accessToken, refreshToken };
+    return { accessToken };
 };
 
 const loginUser = async (payload: { email: string; password: string }) => {
@@ -37,18 +31,6 @@ const loginUser = async (payload: { email: string; password: string }) => {
             "User not found or inactive!"
         );
     }
-    if (user.status === UserStatus.SUSPEND) {
-        throw new ApiError(
-            StatusCodes.UNAUTHORIZED,
-            "User Suspended"
-        );
-    }
-    if (user.isDeleted) {
-        throw new ApiError(
-            StatusCodes.UNAUTHORIZED,
-            "User Deleted"
-        );
-    }
     const isCorrectPassword = await bcrypt.compare(password, user.password);
 
     if (!isCorrectPassword) {
@@ -59,7 +41,6 @@ const loginUser = async (payload: { email: string; password: string }) => {
 
     return {
         accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
     };
 };
 

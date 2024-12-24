@@ -161,13 +161,13 @@ const update = async (id: string, files: any, data: Partial<Project>) => {
 };
 
 const remove = async (id: string): Promise<Project | null> => {
-    await prisma.post.findUniqueOrThrow({
+    await prisma.project.findUniqueOrThrow({
         where: {
             id,
         },
     });
 
-    const result = await prisma.post.delete({
+    const result = await prisma.project.delete({
         where: {
             id,
         },
