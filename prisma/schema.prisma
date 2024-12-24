@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String       @id @default(cuid())
+  email      String       @unique
+  password   String
+  name       String
+  avatar     String       @default("https://res.cloudinary.com/dy8ef1ngb/image/upload/v1733646752/avatar_szqowp.png")
+  phone      String?
+  city       String?
+  state      String?
+  zip_code   String?
+  address    String?
+  country    String?
+  role       Role         @default(ADMIN)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  post       Post[]
+  project    Project[]
+  experience Experience[]
+  skills     Skill[]
+}
+
+model Post {
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  thumbnail  String
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  content    String
+  metaTitle  String?
+  metaDesc   String?
+  metaKey    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Project {
+  id           String       @id @default(cuid())
+  title        String
+  slug         String       @unique
+  content      String
+  thumbnail    String
+  authorId     String
+  liveUrl      String?
+  StartDate    DateTime
+  EndDate      DateTime?
+  category     String
+  author       User         @relation(fields: [authorId], references: [id])
+  images       Image[]
+  technologies Technology[]
+  languages    Language[]
+  metaTitle    String?
+  metaDesc     String?
+  metaKey      String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  url       String
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Experience {
+  id          String    @id @default(cuid())
+  companyName String
+  position    String
+  description String
+  startDate   DateTime
+  endDate     DateTime?
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Skill {
+  id        String     @id @default(cuid())
+  name      String
+  level     SkillLevel
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Technology {
+  id        String    @id @default(cuid())
+  name      String
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Language {
+  id        String    @id @default(cuid())
+  name      String
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model CV {
+  id        String   @id @default(cuid())
+  url       String // URL for the uploaded CV file
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
