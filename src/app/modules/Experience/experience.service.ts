@@ -3,7 +3,9 @@ import { paginationHelper } from "../../../helpars/paginationHelper";
 import prisma from "../../../shared/prisma";
 import { IPaginationOptions } from "../../interfaces/pagination";
 
-const create = async (payload: any) => {
+const create = async (payload: Experience) => {
+    console.log(payload);
+    
     const result = await prisma.experience.create({
         data: payload,
     });
