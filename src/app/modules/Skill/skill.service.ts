@@ -4,6 +4,8 @@ import prisma from "../../../shared/prisma";
 import { IPaginationOptions } from "../../interfaces/pagination";
 
 const create = async (payload: any) => {
+    console.log(payload);
+    
     const result = await prisma.skill.create({
         data: payload,
     });

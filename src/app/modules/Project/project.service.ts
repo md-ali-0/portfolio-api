@@ -4,8 +4,7 @@ import prisma from "../../../shared/prisma";
 import { IAuthUser } from "../../interfaces/common";
 import { IPaginationOptions } from "../../interfaces/pagination";
 
-const create = async (files: any, user: IAuthUser, payload: Project) => {
-
+const create = async (files: any, user: IAuthUser, payload: any) => {
     const thumbnailFile = files?.thumbnail?.[0]?.path || "";
     const imageFiles = files?.images
         ? files?.images.map((file: { path: any }) => file.path)
@@ -15,10 +14,24 @@ const create = async (files: any, user: IAuthUser, payload: Project) => {
         payload.thumbnail = thumbnailFile;
     }
 
+    if (payload.languages && Array.isArray(payload.languages)) {
+        payload.languages = {
+            connect: payload.languages.map((id: string) => ({ id })),
+        };
+    }
+
+    if (payload.technologies && Array.isArray(payload.technologies)) {
+        payload.technologies = {
+            connect: payload.technologies.map((id: string) => ({ id })),
+        };
+    }
+
     const result = await prisma.$transaction(async (tx) => {
         const createProject = await tx.project.create({
             data: payload,
         });
+
+
         if (imageFiles.length > 0) {
             await tx.image.createMany({
                 data: imageFiles.map((image: string) => ({
@@ -27,6 +40,8 @@ const create = async (files: any, user: IAuthUser, payload: Project) => {
                 })),
             });
         }
+
+        return createProject;
     });
 
     return result;
@@ -78,7 +93,6 @@ const getAll = async (
                   },
     });
 
-
     const total = await prisma.project.count({
         where: whereConditions,
     });
@@ -103,17 +117,28 @@ const getOne = async (slug: string) => {
         },
         include: {
             images: true,
+            technologies: true,
+            languages: true,
         },
     });
 
     return result;
 };
 
-const update = async (id: string, files: any, data: Partial<Project>) => {
-    const existingProject = await prisma.project.findUniqueOrThrow({
+interface UpdateProjectData extends Partial<Project> {
+    languages?: { connect: { id: string }[] };
+    technologies?: { connect: { id: string }[] };
+}
+
+const update = async (id: string, files: any, data: UpdateProjectData) => {
+    const existingProject = await prisma.project.findUnique({
         where: { id },
-        include: { images: true },
+        include: { images: true, technologies: true, languages: true },
     });
+
+    if (!existingProject) {
+        throw new Error("Project not found");
+    }
 
     const thumbnailFile = files?.thumbnail?.[0]?.path || "";
     const newImageFiles = files?.images
@@ -124,12 +149,26 @@ const update = async (id: string, files: any, data: Partial<Project>) => {
         data.thumbnail = thumbnailFile;
     }
 
+    // Check for changes in relations (languages, technologies)
+    if (data.languages && Array.isArray(data.languages)) {
+        data.languages = {
+            connect: data.languages.map((id: string) => ({ id })),
+        };
+    }
+    if (data.technologies && Array.isArray(data.technologies)) {
+        data.technologies = {
+            connect: data.technologies.map((id: string) => ({ id })),
+        };
+    }
+
     const result = await prisma.$transaction(async (tx) => {
+        // Update the project
         const updatedProject = await tx.project.update({
             where: { id },
             data,
         });
 
+        // If there are new images, delete the old ones that are not in the new list
         if (newImageFiles.length > 0) {
             const oldImages = existingProject.images;
             const imagesToDelete = oldImages.filter(
@@ -161,16 +200,74 @@ const update = async (id: string, files: any, data: Partial<Project>) => {
 };
 
 const remove = async (id: string): Promise<Project | null> => {
-    await prisma.project.findUniqueOrThrow({
+
+    const project = await prisma.project.findUnique({
         where: {
             id,
+        },
+        include: {
+            images: true,
+            technologies: true,
+            languages: true,
         },
     });
 
-    const result = await prisma.project.delete({
-        where: {
-            id,
-        },
+    if (!project) {
+        throw new Error("Project not found");
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+
+        if (project.images.length > 0) {
+            await tx.image.updateMany({
+                where: {
+                    projectId: id,
+                },
+                data: {
+                    projectId: null,
+                },
+            });
+        }
+
+        if (project.technologies.length > 0) {
+            await tx.project.update({
+                where: { id },
+                data: {
+                    technologies: {
+                        disconnect: project.technologies.map((tech) => ({
+                            id: tech.id,
+                        })),
+                    },
+                },
+            });
+        }
+
+        if (project.languages.length > 0) {
+            await tx.project.update({
+                where: { id },
+                data: {
+                    languages: {
+                        disconnect: project.languages.map((lang) => ({
+                            id: lang.id,
+                        })),
+                    },
+                },
+            });
+        }
+
+        const deletedProject = await tx.project.delete({
+            where: {
+                id,
+            },
+        });
+
+       await tx.image.deleteMany({
+            where: {
+                projectId: id,
+            },
+        });
+
+        return deletedProject;
     });
 
     return result;

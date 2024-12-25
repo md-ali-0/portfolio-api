@@ -73,8 +73,8 @@ model Project {
 model Image {
   id        String   @id @default(cuid())
   url       String
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String?
+  project   Project?  @relation(fields: [projectId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
