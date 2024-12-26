@@ -3,11 +3,9 @@ import { AboutMeRoutes } from '../modules/AboutMe/aboutMe.route';
 import { AuthRoutes } from '../modules/Auth/auth.routes';
 import { CategoryRoutes } from '../modules/Category/category.route';
 import { ExperienceRoutes } from '../modules/Experience/experience.route';
-import { LanguageRoutes } from '../modules/Language/language.route';
 import { PostRoutes } from '../modules/Posts/post.route';
 import { ProjectRoutes } from '../modules/Project/project.route';
 import { SkillRoutes } from '../modules/Skill/skill.route';
-import { TechnologyRoutes } from '../modules/Technology/technology.route';
 import { userRoutes } from '../modules/User/user.routes';
 
 
@@ -39,16 +37,8 @@ const moduleRoutes = [
         route: ExperienceRoutes
     },
     {
-        path: '/language',
-        route: LanguageRoutes
-    },
-    {
         path: '/skill',
         route: SkillRoutes
-    },
-    {
-        path: '/technology',
-        route: TechnologyRoutes
     },
     {
         path: '/about',
