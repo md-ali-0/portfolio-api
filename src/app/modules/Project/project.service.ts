@@ -14,18 +14,6 @@ const create = async (files: any, user: IAuthUser, payload: any) => {
         payload.thumbnail = thumbnailFile;
     }
 
-    if (payload.languages && Array.isArray(payload.languages)) {
-        payload.languages = {
-            connect: payload.languages.map((id: string) => ({ id })),
-        };
-    }
-
-    if (payload.technologies && Array.isArray(payload.technologies)) {
-        payload.technologies = {
-            connect: payload.technologies.map((id: string) => ({ id })),
-        };
-    }
-
     const result = await prisma.$transaction(async (tx) => {
         const createProject = await tx.project.create({
             data: payload,
@@ -117,23 +105,20 @@ const getOne = async (slug: string) => {
         },
         include: {
             images: true,
-            technologies: true,
-            languages: true,
         },
     });
 
     return result;
 };
 
-interface UpdateProjectData extends Partial<Project> {
-    languages?: { connect: { id: string }[] };
-    technologies?: { connect: { id: string }[] };
-}
+const update = async (id: string, files: any, data: Partial<Project>) => {
 
-const update = async (id: string, files: any, data: UpdateProjectData) => {
+    console.log(data);
+    
+
     const existingProject = await prisma.project.findUnique({
         where: { id },
-        include: { images: true, technologies: true, languages: true },
+        include: { images: true},
     });
 
     if (!existingProject) {
@@ -147,17 +132,6 @@ const update = async (id: string, files: any, data: UpdateProjectData) => {
 
     if (thumbnailFile) {
         data.thumbnail = thumbnailFile;
-    }
-
-    if (data.languages && Array.isArray(data.languages)) {
-        data.languages = {
-            connect: data.languages.map((id: string) => ({ id })),
-        };
-    }
-    if (data.technologies && Array.isArray(data.technologies)) {
-        data.technologies = {
-            connect: data.technologies.map((id: string) => ({ id })),
-        };
     }
 
     const result = await prisma.$transaction(async (tx) => {
@@ -205,8 +179,6 @@ const remove = async (id: string): Promise<Project | null> => {
         },
         include: {
             images: true,
-            technologies: true,
-            languages: true,
         },
     });
 
@@ -223,32 +195,6 @@ const remove = async (id: string): Promise<Project | null> => {
                 },
                 data: {
                     projectId: null,
-                },
-            });
-        }
-
-        if (project.technologies.length > 0) {
-            await tx.project.update({
-                where: { id },
-                data: {
-                    technologies: {
-                        disconnect: project.technologies.map((tech) => ({
-                            id: tech.id,
-                        })),
-                    },
-                },
-            });
-        }
-
-        if (project.languages.length > 0) {
-            await tx.project.update({
-                where: { id },
-                data: {
-                    languages: {
-                        disconnect: project.languages.map((lang) => ({
-                            id: lang.id,
-                        })),
-                    },
                 },
             });
         }

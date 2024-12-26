@@ -61,7 +61,8 @@ const getOne = catchAsync(async (req: Request, res: Response) => {
 
 const update = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-
+    console.log(req.body);
+    
     const result = await ProjectService.update(id, req.files, req.body);
     sendResponse(res, {
         statusCode: StatusCodes.OK,

@@ -50,31 +50,33 @@ model Post {
 }
 
 model Project {
-  id           String       @id @default(cuid())
+  id           String    @id @default(cuid())
   title        String
-  slug         String       @unique
+  slug         String    @unique
   content      String
   thumbnail    String
   authorId     String
   liveUrl      String?
+  SourceFront  String?
+  SourceBack   String?
   StartDate    DateTime
   EndDate      DateTime?
-  author       User         @relation(fields: [authorId], references: [id])
+  author       User      @relation(fields: [authorId], references: [id])
   images       Image[]
-  technologies Technology[]
-  languages    Language[]
+  technologies String[]
+  languages    String[]
   metaTitle    String?
   metaDesc     String?
   metaKey      String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Image {
   id        String   @id @default(cuid())
   url       String
   projectId String?
-  project   Project?  @relation(fields: [projectId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -102,27 +104,13 @@ model Skill {
   updatedAt DateTime   @updatedAt
 }
 
-model Technology {
-  id        String    @id @default(cuid())
-  name      String
-  projects  Project[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-
-model Language {
-  id        String    @id @default(cuid())
-  name      String
-  projects  Project[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-
-model CV {
-  id        String   @id @default(cuid())
-  url       String // URL for the uploaded CV file
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model AboutMe {
+  id               String   @id @default(cuid())
+  cvUrl            String
+  shortDescription String
+  aboutMe          String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Category {

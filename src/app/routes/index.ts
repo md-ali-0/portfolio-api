@@ -1,4 +1,5 @@
 import express from 'express';
+import { AboutMeRoutes } from '../modules/AboutMe/aboutMe.route';
 import { AuthRoutes } from '../modules/Auth/auth.routes';
 import { CategoryRoutes } from '../modules/Category/category.route';
 import { ExperienceRoutes } from '../modules/Experience/experience.route';
@@ -48,6 +49,10 @@ const moduleRoutes = [
     {
         path: '/technology',
         route: TechnologyRoutes
+    },
+    {
+        path: '/about',
+        route: AboutMeRoutes
     }
 ];
 
