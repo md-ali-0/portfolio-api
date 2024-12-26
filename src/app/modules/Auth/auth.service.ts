@@ -67,8 +67,9 @@ const changePassword = async (
         throw new ApiError(StatusCodes.UNAUTHORIZED, "Incorrect old password!");
     }
 
+    console.log(existingUser);
     const hashedPassword = await bcrypt.hash(newPassword, 12);
-
+    
     await prisma.user.update({
         where: { email: existingUser.email },
         data: { password: hashedPassword },

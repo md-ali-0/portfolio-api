@@ -9,7 +9,7 @@ import config from "./config";
 const app: Application = express();
 app.use(
     cors({
-        origin: [config.client_url as string, "http://localhost:3000"],
+        origin: [config.client_url as string, "https://server-portfolio-ali.vercel.app", "http://localhost:3000"],
         credentials: true,
     })
 );
