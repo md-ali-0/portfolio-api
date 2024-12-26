@@ -42,7 +42,6 @@ const getAll = async (
         });
     }
 
-    //console.dir(andCondions, { depth: 'inifinity' })
     const whereConditons: Prisma.CategoryWhereInput = { AND: andCondions };
 
     const result = await prisma.category.findMany({

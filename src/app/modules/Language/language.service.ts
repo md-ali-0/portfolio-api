@@ -20,7 +20,6 @@ const getAll = async (
 
     const andCondions: Prisma.LanguageWhereInput[] = [];
     
-    //console.log(filterData);
     if (params.searchTerm) {
         andCondions.push({
             OR: ["name", "slug"].map((field) => ({

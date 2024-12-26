@@ -149,7 +149,6 @@ const update = async (id: string, files: any, data: UpdateProjectData) => {
         data.thumbnail = thumbnailFile;
     }
 
-    // Check for changes in relations (languages, technologies)
     if (data.languages && Array.isArray(data.languages)) {
         data.languages = {
             connect: data.languages.map((id: string) => ({ id })),
@@ -162,13 +161,12 @@ const update = async (id: string, files: any, data: UpdateProjectData) => {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-        // Update the project
+
         const updatedProject = await tx.project.update({
             where: { id },
             data,
         });
 
-        // If there are new images, delete the old ones that are not in the new list
         if (newImageFiles.length > 0) {
             const oldImages = existingProject.images;
             const imagesToDelete = oldImages.filter(
